@@ -31,6 +31,17 @@ $ws_pagehookreciprocal = "";
 
 $wsstylesheet = "";
 
+// loading require library
+function mw_enqueue_color_picker( $hook_suffix ) {
+    // first check that $hook_suffix is appropriate for your admin page
+    wp_enqueue_style( 'wp-color-picker' );
+    wp_enqueue_script( 'schedule-script', plugins_url('schedule-scripts.js', __FILE__ ), array( 'wp-color-picker' ), false, true );
+}
+if(is_admin()){
+	add_action( 'admin_enqueue_scripts', 'mw_enqueue_color_picker' );
+
+}
+
 define('WEEKLY_SCHEDULE_ADMIN_PAGE_NAME', 'weekly-schedule');
 
 function ws_db_prefix() {
@@ -1200,7 +1211,7 @@ if ( ! class_exists( 'WS_Admin' ) ) {
 					<?php endif; ?>
 					Category Name: <input style="width:300px" type="text" name="name" <?php if ($mode == "edit") echo "value='" . $selectedcat->name . "'";?>/>
 					<br>Background Cell Color (optional)
-					<input style="width:100px" type="text" name="backgroundcolor" <?php if ($mode == "edit") echo "value='" . $selectedcat->backgroundcolor . "'";?>/>
+					<input style="width:100px" type="text" class="wp-color-picker" name="backgroundcolor" <?php if ($mode == "edit") echo "value='" . $selectedcat->backgroundcolor . "'";?>/>
 					<input type="hidden" name="id" value="<?php if ($mode == "edit") echo $selectedcat->id; ?>" />
 					<input type="hidden" name="schedule" value="<?php echo $schedule; ?>" />
 					<?php if ($mode == "edit"): ?>
@@ -1393,7 +1404,7 @@ if ( ! class_exists( 'WS_Admin' ) ) {
                     </tr>
                     <tr>
                     <td>Background Cell Color (optional)</td>
-                    <td><input style="width:100px" type="text" name="backgroundcolor" <?php if ($mode == "edit") echo "value='" . $selecteditem->backgroundcolor . "'";?>/></td>
+                    <td><input style="width:100px" type="text" class="wp-color-picker" name="backgroundcolor" <?php if ($mode == "edit") echo "value='" . $selecteditem->backgroundcolor . "'";?>/></td>
 					</tr>
                     <tr>
                     <td>Title Color (optional)</td>
@@ -1871,35 +1882,6 @@ function ws_library($scheduleid = 1, $starttime = 19, $endtime = 22, $timedivisi
 
 	$output .= "</div>\n";
 
-	if ($displaydescription == "tooltip")
-	{
-		$output .= "<script type=\"text/javascript\">\n";
-		$output .= "// Create the tooltips only on document load\n";
-
-		$output .= "jQuery(document).ready(function()\n";
-		$output .= "\t{\n";
-		$output .= "\t// Notice the use of the each() method to acquire access to each elements attributes\n";
-		$output .= "\tjQuery('.ws-schedule td[tooltip]').each(function()\n";
-		$output .= "\t\t{\n";
-		$output .= "\t\tjQuery(this).qtip({\n";
-		$output .= "\t\t\tcontent: jQuery(this).attr('tooltip'), // Use the tooltip attribute of the element for the content\n";
-		$output .= "\t\t\tstyle: {\n";
-		$output .= "\t\t\t\twidth: " . $tooltipwidth . ",\n";
-		$output .= "\t\t\t\tclasses: '" . $tooltipcolorscheme . "' // Give it a crea mstyle to make it stand out\n";
-		$output .= "\t\t\t},\n";
-		$output .= "\t\t\tposition: {\n";
-		if ($adjusttooltipposition)
-			$output .= "\t\t\t\tadjust: {method: 'flip flip'},\n";
-		$output .= "\t\t\t\tviewport: jQuery(window),\n";
-		$output .= "\t\t\t\tat: '" . $tooltiptarget . "',\n";
-		$output .= "\t\t\t\tmy: '" . $tooltippoint . "'\n";
-		$output .= "\t\t\t}\n";
-		$output .= "\t\t});\n";
-		$output .= "\t});\n";
-		$output .= "});\n";
-		$output .= "</script>\n";
-
-	}
 
 	$output .= "<!-- End of Weekly Schedule Output -->\n";
 
@@ -2206,17 +2188,6 @@ function ws_conditional_header($posts){
 			$genoptions['stylesheet'] = 'stylesheet.css';
 
 		wp_enqueue_style('weeklyschedulestyle', get_bloginfo('wpurl') . '/wp-content/plugins/weekly-schedule/' . $genoptions['stylesheet']);
-	}
-
-	if ($load_jquery)
-	{
-		wp_enqueue_script('jquery');
-	}
-
-	if ($load_qtip)
-	{
-		wp_enqueue_style('qtipstyle', get_bloginfo('wpurl') . '/wp-content/plugins/weekly-schedule/jquery-qtip/jquery.qtip-2.0.min.css');
-		wp_enqueue_script('qtip', get_bloginfo('wpurl') . '/wp-content/plugins/weekly-schedule/jquery-qtip/jquery.qtip-2.0.min.js');
 	}
 
 	return $posts;
